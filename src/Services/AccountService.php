@@ -40,12 +40,26 @@ class AccountService
     /**
      * Get current IP address
      * 
+     * Note: This endpoint may not be available for all account types.
+     * 
      * @return string
+     * @throws \LJPc\ClouDNS\Exceptions\ClouDNSException If the endpoint is not available
      */
     public function getCurrentIp(): string
     {
-        $response = $this->client->get('account/get-current-ip');
-        return $response['ip'] ?? '';
+        try {
+            $response = $this->client->get('account/get-current-ip');
+            return $response['ip'] ?? '';
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), 'Invalid request')) {
+                throw new \LJPc\ClouDNS\Exceptions\ClouDNSException(
+                    'The get-current-ip endpoint is not available for this account type.',
+                    0,
+                    $e
+                );
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -61,11 +75,26 @@ class AccountService
     /**
      * Get account information
      * 
+     * Note: This endpoint may not be available for all account types.
+     * If it returns "Invalid request", your account type may not support this feature.
+     * 
      * @return array
+     * @throws \LJPc\ClouDNS\Exceptions\ClouDNSException If the endpoint is not available
      */
     public function getInfo(): array
     {
-        return $this->client->get('account/get-info');
+        try {
+            return $this->client->get('account/get-info');
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), 'Invalid request')) {
+                throw new \LJPc\ClouDNS\Exceptions\ClouDNSException(
+                    'The get-info endpoint is not available for this account type. This may be due to account limitations or permissions.',
+                    0,
+                    $e
+                );
+            }
+            throw $e;
+        }
     }
 
     /**

@@ -101,7 +101,7 @@ class DnsController extends Controller
 
     public function index()
     {
-        $zones = $this->cloudns->zones()->list();
+        $zones = $this->cloudns->zone()->list();
         return view('dns.index', compact('zones'));
     }
 }
@@ -118,12 +118,14 @@ Manage your ClouDNS account:
 $isValid = ClouDNS::account()->testLogin();
 
 // Get current IP address
+// Note: This may not be available for all account types
 $ip = ClouDNS::account()->getCurrentIp();
 
 // Get account balance
 $balance = ClouDNS::account()->getBalance();
 
 // Get account information
+// Note: This may not be available for all account types
 $info = ClouDNS::account()->getInfo();
 
 // Get usage statistics
@@ -142,36 +144,46 @@ use LJPc\ClouDNS\Enums\ZoneType;
 use LJPc\ClouDNS\Enums\RowsPerPage;
 
 // List zones with pagination
-$zones = ClouDNS::zones()->list(
+$zones = ClouDNS::zone()->list(
     page: 1,
     rowsPerPage: RowsPerPage::FIFTY,
     search: 'example'
 );
 
-// Create a new zone
-$zone = ClouDNS::zones()->create(
-    domainName: 'example.com',
-    zoneType: ZoneType::MASTER,
-    masterIp: '192.0.2.1' // for slave zones
+// Create a new zone (using array)
+$zone = ClouDNS::zone()->create([
+    'domain_name' => 'example.com',
+    'zone_type' => ZoneType::MASTER->value,
+    'master_ip' => '192.0.2.1' // for slave zones
+]);
+
+// Or using the DTO
+use LJPc\ClouDNS\DTOs\Requests\CreateZoneRequest;
+$zone = ClouDNS::zone()->create(
+    new CreateZoneRequest(
+        domainName: 'example.com',
+        zoneType: ZoneType::MASTER,
+        masterIp: '192.0.2.1' // for slave zones
+    )
 );
 
 // Get zone information
-$info = ClouDNS::zones()->getInfo('example.com');
+$info = ClouDNS::zone()->getInfo('example.com');
 
 // Get zone statistics
-$stats = ClouDNS::zones()->getStatistics('example.com');
+$stats = ClouDNS::zone()->getStatistics('example.com');
 
 // Delete a zone
-ClouDNS::zones()->delete('example.com');
+ClouDNS::zone()->delete('example.com');
 
 // Update zone status
-ClouDNS::zones()->updateStatus('example.com', true);
+ClouDNS::zone()->updateStatus('example.com', true);
 
 // Check if zone exists
-$exists = ClouDNS::zones()->exists('example.com');
+$exists = ClouDNS::zone()->exists('example.com');
 
 // Get all zones (auto-pagination)
-$allZones = ClouDNS::zones()->getAll(search: 'example');
+$allZones = ClouDNS::zone()->getAll(search: 'example');
 ```
 
 ### 3. Record Service
@@ -183,48 +195,64 @@ use LJPc\ClouDNS\Enums\RecordType;
 use LJPc\ClouDNS\Enums\TTL;
 
 // List records
-$records = ClouDNS::records()->list('example.com');
+$records = ClouDNS::record()->list('example.com');
 
-// Create a new record
-$record = ClouDNS::records()->create(
-    domainName: 'example.com',
-    recordType: RecordType::A,
-    host: 'www',
-    record: '192.0.2.1',
-    ttl: TTL::FIFTEEN_MINUTES
+// Create a new record (using array)
+$recordId = ClouDNS::record()->create([
+    'domain_name' => 'example.com',
+    'record_type' => RecordType::A->value,
+    'host' => 'www',
+    'record' => '192.0.2.1',
+    'ttl' => TTL::FIFTEEN_MINUTES->value
+]);
+
+// Or using the DTO
+use LJPc\ClouDNS\DTOs\Requests\CreateRecordRequest;
+$recordId = ClouDNS::record()->create(
+    new CreateRecordRequest(
+        domainName: 'example.com',
+        recordType: RecordType::A,
+        host: 'www',
+        record: '192.0.2.1',
+        ttl: TTL::FIFTEEN_MINUTES->value
+    )
 );
 
 // Update a record
-ClouDNS::records()->update(
+ClouDNS::record()->update(
     domainName: 'example.com',
     recordId: 12345,
-    host: 'www',
-    record: '192.0.2.2',
-    ttl: TTL::ONE_HOUR
+    updates: [
+        'host' => 'www',
+        'record' => '192.0.2.2',
+        'ttl' => TTL::ONE_HOUR->value
+    ]
 );
 
 // Delete a record
-ClouDNS::records()->delete('example.com', 12345);
+ClouDNS::record()->delete('example.com', 12345);
 
 // Copy records between zones
-$copiedCount = ClouDNS::records()->copy(
+$copiedCount = ClouDNS::record()->copy(
     fromDomain: 'example.com',
     toDomain: 'example.org',
-    deleteExisting: true
+    deleteCurrentRecords: true
 );
 
 // Import records from file or string
-$imported = ClouDNS::records()->import(
+$imported = ClouDNS::record()->import(
     domainName: 'example.com',
     content: $zoneFileContent,
-    deleteExisting: false
+    format: 'bind', // optional, defaults to 'bind'
+    deleteExistingRecords: false,
+    recordTypes: [] // optional array of record types to import
 );
 
 // Export records
-$exported = ClouDNS::records()->export('example.com');
+$exported = ClouDNS::record()->export('example.com');
 
 // Delete multiple records
-$deleted = ClouDNS::records()->deleteMultiple('example.com', [123, 456, 789]);
+$deleted = ClouDNS::record()->deleteMultiple('example.com', [123, 456, 789]);
 ```
 
 ### 4. Dynamic DNS Service
@@ -233,19 +261,19 @@ Manage Dynamic DNS:
 
 ```php
 // Get dynamic URL
-$url = ClouDNS::dynamicDns()->getDynamicUrl('example.com', 12345);
+$url = ClouDNS::dynamicDNS()->getDynamicUrl('example.com', 12345);
 
 // Disable dynamic URL
-ClouDNS::dynamicDns()->disableDynamicUrl('example.com', 12345);
+ClouDNS::dynamicDNS()->disableDynamicUrl('example.com', 12345);
 
 // Change dynamic URL
-$newUrl = ClouDNS::dynamicDns()->changeDynamicUrl('example.com', 12345);
+$newUrl = ClouDNS::dynamicDNS()->changeDynamicUrl('example.com', 12345);
 
 // Update IP address
-ClouDNS::dynamicDns()->updateIp($dynamicUrl, '192.0.2.1');
+ClouDNS::dynamicDNS()->updateIp($dynamicUrl, '192.0.2.1');
 
 // Get update history
-$history = ClouDNS::dynamicDns()->getHistory(
+$history = ClouDNS::dynamicDNS()->getHistory(
     domainName: 'example.com',
     recordId: 12345,
     page: 1,
@@ -253,7 +281,7 @@ $history = ClouDNS::dynamicDns()->getHistory(
 );
 
 // Check if dynamic DNS is enabled
-$enabled = ClouDNS::dynamicDns()->isEnabled('example.com', 12345);
+$enabled = ClouDNS::dynamicDNS()->isEnabled('example.com', 12345);
 ```
 
 ### 5. GeoDNS Service
@@ -262,10 +290,10 @@ Manage GeoDNS locations:
 
 ```php
 // Get available locations
-$locations = ClouDNS::geodns()->getLocations('example.com');
+$locations = ClouDNS::geoDNS()->getLocations('example.com');
 
 // Check if GeoDNS is available
-$available = ClouDNS::geodns()->isAvailable('example.com');
+$available = ClouDNS::geoDNS()->isAvailable('example.com');
 ```
 
 ### 6. Failover Service
@@ -291,7 +319,8 @@ $forwards = ClouDNS::mailForwarding()->list('example.com');
 // Add mail forward
 ClouDNS::mailForwarding()->add(
     domainName: 'example.com',
-    email: 'info@example.com',
+    box: 'info',
+    host: 'example.com',
     destination: 'forward@example.org'
 );
 
@@ -307,16 +336,15 @@ Manage monitoring checks:
 use LJPc\ClouDNS\Enums\MonitoringType;
 
 // Create monitoring check
-$monitor = ClouDNS::monitoring()->create(
-    name: 'Web Server Check',
-    type: MonitoringType::HTTP,
-    host: 'www.example.com',
-    port: 80,
-    path: '/health',
-    interval: 300,
-    timeout: 10,
-    notificationEmails: ['admin@example.com']
-);
+$monitor = ClouDNS::monitoring()->create([
+    'name' => 'Web Server Check',
+    'monitoring_type' => MonitoringType::HTTP,
+    'ip' => '192.0.2.1',
+    'check_period' => 300,
+    'port' => 80,
+    'path' => '/health',
+    'timeout' => 10
+]);
 
 // List monitoring checks
 $monitors = ClouDNS::monitoring()->list();
@@ -346,13 +374,13 @@ Manage slave zone master servers:
 
 ```php
 // Add master server
-ClouDNS::slaveZones()->addMasterServer('example.com', '192.0.2.1');
+ClouDNS::slaveZone()->addMasterServer('example.com', '192.0.2.1');
 
 // Delete master server
-ClouDNS::slaveZones()->deleteMasterServer('example.com', '192.0.2.1');
+ClouDNS::slaveZone()->deleteMasterServer('example.com', '192.0.2.1');
 
 // List master servers
-$servers = ClouDNS::slaveZones()->listMasterServers('example.com');
+$servers = ClouDNS::slaveZone()->listMasterServers('example.com');
 ```
 
 ### 11. SOA Service
@@ -366,12 +394,14 @@ $soa = ClouDNS::soa()->getDetails('example.com');
 // Modify SOA settings
 ClouDNS::soa()->modify(
     domainName: 'example.com',
-    primaryNs: 'ns1.example.com',
-    adminMail: 'admin@example.com',
-    refresh: 7200,
-    retry: 1800,
-    expire: 1209600,
-    defaultTtl: 3600
+    updates: [
+        'primary_ns' => 'ns1.example.com',
+        'admin_mail' => 'admin@example.com',
+        'refresh' => 7200,
+        'retry' => 1800,
+        'expire' => 1209600,
+        'default_ttl' => 3600
+    ]
 );
 
 // Reset SOA to defaults
@@ -386,13 +416,15 @@ Utility functions:
 // Get available TTLs
 $ttls = ClouDNS::utility()->getAvailableTTLs();
 
-// Get available record types for a zone
-$types = ClouDNS::utility()->getAvailableRecordTypes('example.com');
+// Get available record types for a zone type
+$types = ClouDNS::utility()->getAvailableRecordTypes('master');
 
 // Create failover webhook
 $webhook = ClouDNS::utility()->createFailoverWebhook(
-    monitoringId: 12345,
-    url: 'https://example.com/webhook'
+    domainName: 'example.com',
+    recordId: 12345,
+    type: 'HTTP',
+    webhookUrl: 'https://example.com/webhook'
 );
 ```
 
@@ -527,7 +559,7 @@ Support for ClouDNS sub-user authentication:
 
 ```php
 // Configure in .env:
-CLOUDNS_USE_SUB_AUTH=true
+CLOUDNS_IS_SUB_USER=true
 CLOUDNS_SUB_AUTH_ID=123
 CLOUDNS_SUB_AUTH_USER=subuser
 ```
@@ -558,12 +590,12 @@ use LJPc\ClouDNS\Facades\ClouDNS;
 ClouDNS::fake();
 
 // Configure expected responses
-ClouDNS::shouldReceive('zones->list')
+ClouDNS::shouldReceive('zone->list')
     ->once()
     ->andReturn(['example.com', 'example.org']);
 
 // Your code that uses ClouDNS
-$zones = ClouDNS::zones()->list();
+$zones = ClouDNS::zone()->list();
 
 // Assertions
 $this->assertCount(2, $zones);
