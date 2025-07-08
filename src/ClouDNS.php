@@ -7,6 +7,7 @@ namespace LJPc\ClouDNS;
 use LJPc\ClouDNS\Client\ClouDNSClient;
 use LJPc\ClouDNS\Services\AccountService;
 use LJPc\ClouDNS\Services\AXFRService;
+use LJPc\ClouDNS\Services\DNSSECService;
 use LJPc\ClouDNS\Services\DynamicDNSService;
 use LJPc\ClouDNS\Services\FailoverService;
 use LJPc\ClouDNS\Services\GeoDNSService;
@@ -220,6 +221,22 @@ class ClouDNS
     public function utility(): UtilityService
     {
         return new UtilityService($this->client);
+    }
+
+    /**
+     * Get the DNSSEC service instance
+     * 
+     * Provides access to DNSSEC operations such as:
+     * - Activating and deactivating DNSSEC
+     * - Managing DS records
+     * - Retrieving DNSSEC status
+     * - Key rotation
+     * 
+     * @return DNSSECService
+     */
+    public function dnssec(): DNSSECService
+    {
+        return new DNSSECService($this->client);
     }
 
     /**

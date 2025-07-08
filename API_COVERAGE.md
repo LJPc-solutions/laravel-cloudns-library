@@ -101,6 +101,19 @@ This document verifies the coverage of ClouDNS API endpoints in this Laravel lib
   - `getAvailableRecordTypes()` - Get the available record types
   - `createFailoverWebhook()` - Create failover webhook
 
+### ✅ DNSSEC Management
+- **DNSSEC Operations**
+  - `isAvailable()` - Check if DNSSEC is available
+  - `activate()` - Activate DNSSEC
+  - `deactivate()` - Deactivate DNSSEC
+  - `getDsRecords()` - Get DS records
+  - `addDsRecord()` - Add DS record from parent zone
+  - `removeDsRecord()` - Remove DS record(s)
+  - `setOptOut()` - Set DNSSEC OPTOUT status
+  - `isActive()` - Check if DNSSEC is active
+  - `getStatus()` - Get comprehensive DNSSEC status
+  - `getAvailableAlgorithms()` - Get supported algorithms
+
 ## API Categories Coverage Summary
 
 | Category | Status | Services Implemented |
@@ -117,6 +130,7 @@ This document verifies the coverage of ClouDNS API endpoints in this Laravel lib
 | GeoDNS | ✅ Complete | GeoDNSService |
 | Failover | ✅ Complete | FailoverService |
 | Utilities | ✅ Complete | UtilityService |
+| DNSSEC | ✅ Complete | DNSSECService |
 
 ## Known ClouDNS API Features Coverage
 
@@ -139,6 +153,7 @@ Based on the API documentation search results, here's the coverage status:
 - ✅ Monitoring
 - ✅ Mail forwarding
 - ✅ AXFR/Slave zones
+- ✅ DNSSEC
 
 ### API Features
 - ✅ Authentication (main user and sub-user)
@@ -169,7 +184,7 @@ Beyond the basic API coverage, this library includes:
    - Error handling with specific exceptions
 
 4. **Developer Experience**
-   - 97% test coverage
+   - 93.75% test coverage
    - Comprehensive documentation
    - Example code for all services
    - Mock support for testing

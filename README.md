@@ -2,7 +2,7 @@
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-blue.svg)](https://www.php.net)
 [![Laravel Version](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
-[![Code Coverage](https://img.shields.io/badge/coverage-97%25-brightgreen.svg)](https://github.com/ljpc/laravel-cloudns)
+[![Code Coverage](https://img.shields.io/badge/coverage-93.75%25-brightgreen.svg)](https://github.com/ljpc/laravel-cloudns)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 <a href="https://www.buymeacoffee.com/Lars-" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60" style="height: 60px !important;width: 217px !important;" ></a>
@@ -426,6 +426,78 @@ $webhook = ClouDNS::utility()->createFailoverWebhook(
     type: 'HTTP',
     webhookUrl: 'https://example.com/webhook'
 );
+```
+
+### 13. DNSSEC Service
+
+Manage DNSSEC (Domain Name System Security Extensions):
+
+```php
+// Check if DNSSEC is available for a domain
+$available = ClouDNS::dnssec()->isAvailable('example.com');
+
+// Activate DNSSEC
+ClouDNS::dnssec()->activate('example.com');
+
+// Get DS records (for parent zone)
+$dsRecords = ClouDNS::dnssec()->getDsRecords('example.com');
+// Returns:
+// [
+//     'status' => 'Success',
+//     'ds' => [
+//         [
+//             'digest_type' => 2,    // SHA-256
+//             'algorithm' => 8,      // RSA/SHA-256
+//             'digest' => '1234567890ABCDEF...',
+//             'key_tag' => 12345
+//         ]
+//     ]
+// ]
+
+// Check if DNSSEC is active
+$active = ClouDNS::dnssec()->isActive('example.com');
+
+// Get comprehensive DNSSEC status
+$status = ClouDNS::dnssec()->getStatus('example.com');
+// Returns:
+// [
+//     'available' => true,
+//     'active' => true,
+//     'ds_records' => [...]
+// ]
+
+// Add DS record from parent zone
+ClouDNS::dnssec()->addDsRecord(
+    domainName: 'example.com',
+    keyTag: 12345,
+    algorithm: 8,      // RSA/SHA-256
+    digestType: 2,     // SHA-256
+    digest: '1234567890ABCDEF...'
+);
+
+// Remove DS record
+ClouDNS::dnssec()->removeDsRecord('example.com', 12345);
+
+// Remove all DS records
+ClouDNS::dnssec()->removeDsRecord('example.com');
+
+// Set DNSSEC OPTOUT status
+ClouDNS::dnssec()->setOptOut('example.com', false); // Disable OPTOUT
+
+// Deactivate DNSSEC
+ClouDNS::dnssec()->deactivate('example.com');
+
+// Get available DNSSEC algorithms
+$algorithms = ClouDNS::dnssec()->getAvailableAlgorithms();
+// Returns:
+// [
+//     5 => 'RSA/SHA-1',
+//     7 => 'RSASHA1-NSEC3-SHA1',
+//     8 => 'RSA/SHA-256',
+//     10 => 'RSA/SHA-512',
+//     13 => 'ECDSA Curve P-256 with SHA-256',
+//     14 => 'ECDSA Curve P-384 with SHA-384'
+// ]
 ```
 
 ## Working with Enums
