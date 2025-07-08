@@ -1,0 +1,58 @@
+{
+    "name": "ljpc/laravel-cloudns",
+    "description": "Laravel package for ClouDNS API integration with full support for DNS management and monitoring",
+    "keywords": ["laravel", "cloudns", "dns", "api"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "LJPc",
+            "email": "support@ljpc.nl"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/support": "^11.0",
+        "illuminate/http": "^11.0",
+        "illuminate/config": "^11.0",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "orchestra/testbench": "^9.0",
+        "mockery/mockery": "^1.6",
+        "phpstan/phpstan": "^1.10",
+        "laravel/pint": "^1.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "LJPc\\ClouDNS\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LJPc\\ClouDNS\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LJPc\\ClouDNS\\ClouDNSServiceProvider"
+            ],
+            "aliases": {
+                "ClouDNS": "LJPc\\ClouDNS\\Facades\\ClouDNS"
+            }
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "format": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
