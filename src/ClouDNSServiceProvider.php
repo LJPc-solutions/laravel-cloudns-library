@@ -59,13 +59,13 @@ class ClouDNSServiceProvider extends ServiceProvider
                 useSubUsername: $config['use_sub_username'] ?? false,
                 baseUrl: $config['base_url'] ?? 'https://api.cloudns.net',
                 responseFormat: $config['response_format'] ?? 'json',
-                timeout: $config['timeout'] ?? 30,
-                retryTimes: $config['retry_times'] ?? 3,
-                retryDelay: $config['retry_delay'] ?? 1000,
-                cacheEnabled: $config['cache_enabled'] ?? true,
-                cacheTtl: $config['cache_ttl'] ?? 300,
+                timeout: (int) ($config['timeout'] ?? 30),
+                retryTimes: (int) ($config['retry_times'] ?? 3),
+                retryDelay: (int) ($config['retry_delay'] ?? 1000),
+                cacheEnabled: (bool) ($config['cache_enabled'] ?? true),
+                cacheTtl: (int) ($config['cache_ttl'] ?? 300),
                 cachePrefix: $config['cache_prefix'] ?? 'cloudns_',
-                logEnabled: $config['log_enabled'] ?? true,
+                logEnabled: (bool) ($config['log_enabled'] ?? true),
                 logChannel: $config['log_channel'] ?? 'stack',
                 logLevel: $config['log_level'] ?? 'info'
             );
@@ -91,7 +91,7 @@ class ClouDNSServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/cloudns.php' => config_path('cloudns.php'),
-        ], 'cloudns-config');
+        ], 'config');
     }
 
     /**

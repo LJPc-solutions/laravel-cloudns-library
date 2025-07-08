@@ -65,10 +65,8 @@ Configure your ClouDNS credentials in `.env`:
 ```env
 CLOUDNS_AUTH_ID=your-auth-id
 CLOUDNS_AUTH_PASSWORD=your-auth-password
-CLOUDNS_USE_SUB_AUTH=false
-# Optional sub-user authentication
-CLOUDNS_SUB_AUTH_ID=
-CLOUDNS_SUB_AUTH_USER=
+CLOUDNS_IS_SUB_USER=false
+CLOUDNS_USE_SUB_USERNAME=false
 
 # Optional configuration
 CLOUDNS_CACHE_ENABLED=true
